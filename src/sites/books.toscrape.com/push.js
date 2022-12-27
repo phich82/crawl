@@ -16,7 +16,8 @@ import { currentpath, readJsonFromDir } from '../../shared/utils.js';
       data.forEach(async (item, index) => {
         // Save to database
         await Product.create({
-          name: String(item.description).length > 200 ? String(item.description).substring(0, 199) : item.description,
+          name: String(item.name).length > 200 ? String(item.name).substring(0, 199) : item.name,
+          description: item.description,
           image: item.image,
           price: Number(String(item.price).replace('£', '') || 0),
         });

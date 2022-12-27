@@ -2,6 +2,7 @@ import fs from 'fs';
 
 import path from 'path';
 import { fileURLToPath } from 'url';
+import request from 'request';
 
 export const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -24,9 +25,13 @@ export const createJsonFile = (input, filename = 'data.json', callback = () => {
   );
 };
 
+export const readJsonFileSync = (jsonFilePath, options = null) => {
+  return JSON.parse(fs.readFileSync(jsonFilePath, options));
+}
+
 export const readJsonFile = (jsonFilePath, callback = () => {}) => {
   fs.readFile(jsonFilePath, (err, data) => {
-    if (err) {
+    if (err) {;
       return callback(err, undefined);
     }
     try {
@@ -41,12 +46,60 @@ export const readJsonFromDir = (dirPath, callback = () => {}, ignoreError = fals
   const jsonsInDir = fs.readdirSync(dirPath).filter(file => path.extname(file) === '.json');
   jsonsInDir.forEach((file, index) => {
     try {
-      const fileData = fs.readFileSync(path.join(dirPath, file));
-      callback(undefined, JSON.parse(fileData.toString()), index);
+      const filePath = path.join(dirPath, file);
+      const fileData = fs.readFileSync(filePath);
+      callback(undefined, JSON.parse(fileData.toString()), index, filePath);
     } catch (err) {
       if (!ignoreError) {
         callback(err, undefined);
       }
     }
   });
+};
+
+export const emptyDir = (dir) => {
+  if (!fs.existsSync(dir)) {
+    console.log(`Directory [${dir}] not found.`)
+    return false;
+  }
+  fs.readdirSync(dir).forEach(f => fs.rmSync(`${dir}/${f}`, { force: true }));
+  return true;
 }
+
+export const deleteDirSync = (dir) => {
+  if (!fs.existsSync(dir)) {
+    console.log(`Directory [${dir}] not found.`)
+    return false;
+  }
+
+  fs.rmSync(dir, { recursive: true, force: true });
+  return true;
+};
+
+export const ensureDirSync = (dir) => {
+  if (!fs.existsSync(dir)) {
+    return fs.mkdirSync(dir, { recursive: true, mode: 0o777 });
+  }
+};;
+
+export const existsFile = (file) => {
+  try {
+    fs.accessSync(file, fs.constants.R_OK | fs.constants.W_OK);
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
+export const download = (uri, filename = 'download', storePath = './') => {
+  if (storePath != './') {
+    ensureDirSync(storePath);
+  }
+  return new Promise((resolve, reject) => {
+    request.head(uri, function (err, res, body) {
+      request(uri).pipe(fs.createWriteStream(`${storePath}/${filename}`)).on('close', resolve);
+    });
+  });
+};
+
+export const chunk = (arr, n) => [...Array(Math.ceil(arr.length / n))].map((_, i) => arr.slice(n*i, n + n*i));

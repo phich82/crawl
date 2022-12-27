@@ -8,6 +8,11 @@ export const SITES = {
     DOMAIN: 'books.toscrape.com',
     URL: 'http://books.toscrape.com',
   },
+  NSHOPVN_COM: {
+    PROTOCOL: 'https',
+    DOMAIN: 'books.toscrape.com',
+    URL: 'https://nshopvn.com',
+  },
 };
 
 export const DB_CONFIG = {

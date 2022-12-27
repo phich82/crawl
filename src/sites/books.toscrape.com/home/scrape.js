@@ -1,10 +1,11 @@
 import scraper from '../../../shared/scaper.js';
 import { SITES } from '../../../config/index.js';
 
-export default async function scrape (browser, scriptPath = import.meta.url) {
-  for (let i=1; i <= 5; i++ ) {
+const IMAGES_PATH = 'images';
 
-    let url = SITES.BOOKS_TOSCAPE_COM.URL;
+export default async function scrape (browser, scriptPath = import.meta.url) {
+  let url = SITES.BOOKS_TOSCAPE_COM.URL;
+  for (let i=1; i <= 50; i++ ) {
     if (i > 1) {
       url = `${url}/catalogue/page-${i}.html`;
     }
@@ -12,10 +13,14 @@ export default async function scrape (browser, scriptPath = import.meta.url) {
       // Extract the results from the page.
       return await page.evaluate(() => {
         return [...document.querySelectorAll('.row .row li')].map(element => {
-          const img = element.querySelector('.thumbnail');
+          const image = element.querySelector('.thumbnail');
+          const filename = String(image.src || '').split('/').pop();
+          const imagePath = `${IMAGES_PATH}/${filename}`;
           return {
-            description: img.alt,
-            image: img.src,
+            detail_link: image.closest('a').href,
+            name: image.alt,
+            description: '',
+            image: imagePath,
             price: element.querySelector('.price_color').innerHTML
           };
         });

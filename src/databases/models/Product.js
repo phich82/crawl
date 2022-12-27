@@ -55,11 +55,11 @@ Product.init({
   paranoid: true,
   underscored: true,
 
-  // I don't want createdAt
+  // Don't want show createdAt
   // createdAt: false,
 
-  // I want updatedAt to actually be called updateTimestamp
-  // updatedAt: 'updateTimestamp'
+  // Change updatedAt to updated_at
+  // updatedAt: 'updated_at'
 });
 
 /**************************** ONLY FOR DEVELOPMENT ******************************/
